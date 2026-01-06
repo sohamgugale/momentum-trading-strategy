@@ -78,8 +78,8 @@ def load_data_robust(tickers, start_date, end_date, max_retries=3):
                 st.warning(f"⚠️ Dropped {dropped} stocks with no data")
             
             # Check we have enough data
-            if len(prices.columns) < 5:
-                st.error(f"❌ Only {len(prices.columns)} stocks have data. Need at least 5.")
+            if len(prices.columns) < 10:
+                st.error(f"❌ Only {len(prices.columns)} stocks have data. Need at least 10.")
                 if attempt < max_retries - 1:
                     st.info("Retrying with different parameters...")
                     time.sleep(2)
@@ -99,7 +99,11 @@ def load_data_robust(tickers, start_date, end_date, max_retries=3):
             st.success(f"✓ Downloaded {len(prices)} days for {len(prices.columns)} stocks")
             
             # Log which stocks we got
-            st.info(f"Stocks: {', '.join(prices.columns[:10])}{'...' if len(prices.columns) > 10 else ''}")
+            stock_list = ', '.join(prices.columns.tolist())
+            if len(prices.columns) <= 15:
+                st.info(f"📊 Stocks: {stock_list}")
+            else:
+                st.info(f"📊 Stocks: {', '.join(prices.columns[:10].tolist())}... (+{len(prices.columns)-10} more)")
             
             return prices
             
@@ -205,12 +209,14 @@ def main():
     """)
     
     if run:
-        # Tickers - Top 20 liquid large-caps
+        # Tickers - Top 30 liquid large-caps (extra backups in case some fail)
         tickers = [
             'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META',
             'TSLA', 'NVDA', 'JPM', 'V', 'WMT',
             'JNJ', 'PG', 'MA', 'UNH', 'HD',
-            'DIS', 'BAC', 'ADBE', 'NFLX', 'CRM'
+            'DIS', 'BAC', 'ADBE', 'NFLX', 'CRM',
+            'COST', 'ORCL', 'CSCO', 'INTC', 'AMD',
+            'QCOM', 'TXN', 'IBM', 'AVGO', 'NOW'
         ]
         
         # Date range
@@ -230,10 +236,13 @@ def main():
             return
         
         # Check minimum requirements
-        if len(prices.columns) < n_long + n_short:
-            st.error(f"❌ Need at least {n_long + n_short} stocks for {n_long} longs + {n_short} shorts")
-            st.info(f"Only have {len(prices.columns)} stocks. Reduce position counts or try again.")
+        min_required = n_long + n_short
+        if len(prices.columns) < min_required:
+            st.error(f"❌ Need at least {min_required} stocks for {n_long} longs + {n_short} shorts")
+            st.info(f"Only have {len(prices.columns)} stocks. Reduce position counts to {len(prices.columns)//2} or fewer.")
             return
+        elif len(prices.columns) < 20:
+            st.warning(f"⚠️ Have {len(prices.columns)} stocks (less than 20). Strategy will still work!")
         
         # Run backtest
         with st.spinner("🔄 Running backtest..."):
