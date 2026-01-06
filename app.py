@@ -393,25 +393,19 @@ def main():
             2. **Institutional:** Slow capital flows
             3. **Risk-based:** Compensation for crash risk
             
-            ### This Implementation
-            
-            - **Lookback:** {lookback_days} days ({lookback_days/21:.0f} months)
-            - **Rebalance:** Every {rebalance_days} days
-            - **Long/Short:** {n_long} longs, {n_short} shorts
-            - **Costs:** 15 bps per trade
-            - **Validation:** 70/30 train/test split
-            
             ### Further Reading
             
             1. Jegadeesh & Titman (1993) - Original paper
             2. Asness et al. (2013) - "Value and Momentum Everywhere"
             3. Antonacci (2014) - "Dual Momentum Investing"
-            """.format(
-                lookback_days=lookback_days,
-                rebalance_days=rebalance_days,
-                n_long=n_long,
-                n_short=n_short
-            ))
+            """)
+            
+            st.subheader("This Implementation")
+            st.write(f"- **Lookback:** {lookback_days} days ({lookback_days//21} months)")
+            st.write(f"- **Rebalance:** Every {rebalance_days} days")
+            st.write(f"- **Long/Short:** {n_long} longs, {n_short} shorts")
+            st.write("- **Costs:** 15 bps per trade")
+            st.write("- **Validation:** 70/30 train/test split")
     
     else:
         st.info("""
